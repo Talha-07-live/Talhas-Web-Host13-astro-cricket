@@ -1,53 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Talha Full Proxy Stream</title>
-<style>
-  html,body{margin:0;padding:0;height:100%;background:#000}
-  #container{position:relative;height:100vh;overflow:hidden}
-  iframe{width:100%;height:100vh;border:0;display:block}
-  .telegram-button{position:absolute;top:10px;left:10px;z-index:9999;cursor:pointer}
-  .telegram-button img{width:60px;height:60px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
-  .footer-text{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:9998;color:#f33;background:rgba(0,0,0,0.4);padding:6px 12px;border-radius:6px;font-weight:600}
-  .channel-buttons{position:absolute;top:10px;right:10px;z-index:9999;display:flex;gap:8px}
-  .channel-buttons button{padding:8px 12px;border-radius:6px;border:none;background:#fff;color:#000;cursor:pointer}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Cricket Stream</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+        }
+
+        .footer-text {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            text-align: center;
+            color: red;
+            background-color: transparent;
+            font-size: 85%;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .footer-text span {
+            display: inline-block;
+            padding-left: 95%;
+            animation: slide 25s linear infinite;
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translateX(8%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Telegram Button */
+        .telegram-button {
+            position: absolute;
+            top: 1px; /* Adjust to move up/down */
+            left: 1px; /* Adjust to move left/right */
+            z-index: 15%;
+            cursor: pointer;
+        }
+
+        .telegram-button img {
+            width: 60px;
+            height: 60px;
+            border-radius: 20%;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+
+    <script>
+        window.onload = function () {
+            // List of allowed domains
+            const allowedDomains = [
+                'https://talha-07-live.github.io/Talhas-Web-Host13-astro-cricket/',
+                'https://talhas.collection.page.gd/',
+                'https://bhaichurikorbenna.servert.rf.gd/',
+                'https://wizardfcofficial.rf.gd/'
+            ];
+
+            const referrer = document.referrer;
+
+            // Check if the request is coming from any of the allowed domains
+            const isAllowed = allowedDomains.some(domain => referrer.startsWith(domain));
+
+            if (!isAllowed) {
+                document.body.innerHTML = '<h1>চুরি করা মহাপাপ (By Order Of Talha, The Creator Of This Page)</h1>';
+                return;
+            }
+
+            const iframe = document.getElementById('stream-iframe');
+
+            // Listen for messages from the iframe
+            window.addEventListener('message', function (event) {
+                if (event.origin !== 'https://en.gdplayer.tv') return; // Change this to the actual origin if needed
+                if (event.data && event.data.type === 'prevent-open') {
+                    alert('Blocked a new tab from opening.');
+                }
+            });
+
+            // Load the iframe
+            iframe.src = 'https://liveon.rajtammi111212.workers.dev/?ch=willow';
+
+            // Hide the footer text after 10 seconds
+            setTimeout(function () {
+                document.querySelector('.footer-text').style.display = 'none';
+            }, 26000); // 25 seconds delay to hide the text
+        }
+
+        function openTelegram() {
+            window.open('https://t.me/talhasmovie_request_bot', '_blank');
+        }
+    </script>
 </head>
+
 <body>
-<div id="container">
-  <div class="telegram-button" onclick="window.open('https://t.me/talhasmovie_request_bot','_blank')">
-    <img src="https://s1.gifyu.com/images/SAe3R.png" alt="tg">
-  </div>
 
-  <div class="channel-buttons">
-    <button data-ch="astro-cricket">Astro</button>
-    <button data-ch="willow">Willow</button>
-    <button data-ch="ptv">PTV</button>
-    <button data-ch="ten-cricket">TEN</button>
-  </div>
+    <div class="footer-text">
+        <span>Welcome to Talha's Stream, You're Watching Live Sports on Talha's Collection (This Livestream source from third party website. "Talha's collection" doesn't benefit from any of this ads)</span>
+    </div>
 
-  <iframe id="stream-iframe" src="" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+    <!-- Telegram Button -->
+    <div class="telegram-button" onclick="openTelegram()">
+        <img src="https://s1.gifyu.com/images/SAe3R.png" alt="Telegram">
+    </div>
 
-  <div class="footer-text">Welcome to Talha's Full Proxy Stream — Clean player (popup/ad minimized)</div>
-</div>
-
-<script>
-const WORKER_BASE_URL = 'https://liveon.rajtammi111212.workers.dev/'; // Update with your Worker URL
-const DEFAULT_CHANNEL = 'astro-cricket';
-
-function setChannel(ch){
-  const iframe = document.getElementById('stream-iframe');
-  iframe.src = WORKER_BASE_URL + '?ch=' + encodeURIComponent(ch) + '&_v=' + Date.now();
-}
-
-document.addEventListener('DOMContentLoaded', ()=>{
-  setChannel(DEFAULT_CHANNEL);
-  document.querySelectorAll('.channel-buttons button').forEach(btn=>{
-    btn.addEventListener('click', ()=> setChannel(btn.getAttribute('data-ch')));
-  });
-});
-</script>
+    <iframe id="stream-iframe" scrolling="no" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen; geolocation; web-share; speaker-selection; screen-wake-lock; Idle-detection" allowfullscreen></iframe>
 </body>
 </html>
