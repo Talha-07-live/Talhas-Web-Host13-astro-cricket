@@ -91,7 +91,7 @@
 
             // Listen for messages from the iframe
             window.addEventListener('message', function (event) {
-                if (event.origin !== 'https://en.gdplayer.tv') return; 
+                if (event.origin !== 'https://en.gdplayer.tv') return;
                 if (event.data && event.data.type === 'prevent-open') {
                     alert('Blocked a new tab from opening.');
                 }
@@ -115,13 +115,12 @@
         // ===============================
         (function () {
             // Block window.open
-            const originalOpen = window.open;
             window.open = function (...args) {
                 console.warn("⚠️ Popup Blocked:", args);
                 return null;
             };
 
-            // Block target="_blank" clicks
+            // Block target="_blank" links
             document.addEventListener("click", function (e) {
                 const el = e.target.closest("a");
                 if (el && el.target === "_blank") {
@@ -130,10 +129,9 @@
                 }
             }, true);
 
-            // Block forced navigation
+            // Block forced navigation (assign/replace/href)
             const originalAssign = window.location.assign;
             const originalReplace = window.location.replace;
-            const originalHref = Object.getOwnPropertyDescriptor(Location.prototype, 'href').set;
 
             window.location.assign = function (url) {
                 console.warn("⚠️ Redirect attempt blocked (assign):", url);
