@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Cricket Stream</title>
+<style>
+  body { margin:0; padding:0; background:#000; overflow:hidden; }
+  iframe { width:100%; height:100vh; border:none; }
+  .telegram-button {
+    position:absolute; top:10px; left:10px; z-index:9999; cursor:pointer;
+  }
+  .telegram-button img { width:60px; height:60px; border-radius:20%; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+  .footer-text {
+    position:absolute; bottom:0; width:100%; text-align:center; color:red;
+    font-size:12px; font-weight:bold; background:rgba(0,0,0,0.3); z-index:9998;
+  }
+</style>
+</head>
+<body>
+
+<div class="telegram-button" onclick="window.open('https://t.me/talhasmovie_request_bot','_blank')">
+  <img src="https://s1.gifyu.com/images/SAe3R.png" alt="Telegram">
+</div>
+
+<div class="footer-text">
+  <span>Welcome to Talha's Stream, You're Watching Live Sports on Talha's Collection</span>
+</div>
+
+<iframe id="stream-iframe" src="https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1"
+        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+        allowfullscreen></iframe>
+
+<script>
+// ============================================
+// Parent Page Hijack / Ads / Popup Blocker
+// ============================================
+
+window.onload = function(){
+
+  const iframe = document.getElementById('stream-iframe');
+
+  // 1) Prevent iframe from opening new tabs or navigation
+  // Override window.open inside iframe (best effort)
+  function overrideIframeWindowOpen() {
+    try {
+      // Sometimes we can access contentWindow if same-origin; if not, we can intercept at parent click level
+      const iframeWin = iframe.contentWindow;
+      if(iframeWin){
+        iframeWin.open = function(){ console.warn('Blocked iframe popup'); return null; };
+      }
+    } catch(e){
+      // cross-origin iframe → parent cannot access window, handle clicks instead
+    }
+  }
+
+  overrideIframeWindowOpen();
+
+  // 2) Click interceptor: prevent iframe from trying to hijack on user clicks
+  document.addEventListener('click', function(e){
+    let el = e.target;
+    while(el){
+      if(el.tagName==='IFRAME'){
+        e.stopPropagation();
+        // console.log('iframe click blocked'); // just prevent propagation
+        break;
+      }
+      el = el.parentNode;
+    }
+  }, true);
+
+  // 3) MutationObserver: watch for dynamically injected ads/popups in parent DOM
+  const mo = new MutationObserver(muts=>{
+    muts.forEach(m=>{
+      if(m.addedNodes){
+        m.addedNodes.forEach(n=>{
+          if(n.nodeType===1){
+            // remove common ad-like elements injected in parent
+            if(/ads|banner|overlay|popup|interstitial/i.test(n.id+n.className)){
+              try{ n.remove(); }catch(e){}
+            }
+          }
+        });
+      }
+    });
+  });
+  mo.observe(document.body,{childList:true,subtree:true});
+
+  // 4) Periodic cleanup of parent DOM ads
+  setInterval(function(){
+    document.querySelectorAll('[id*="ads"], [class*="ads"], [id*="banner"], [class*="banner"], .popup, .interstitial')
+      .forEach(n=>{ try{n.remove();}catch(e){} });
+  },2000);
+
+  // 5) Optional: hide footer text after 25s
+  setTimeout(function(){
+    const ft = document.querySelector('.footer-text');
+    if(ft) ft.style.display='none';
+  },25000);
+};
+</script>
+
+</body>
+</html>
