@@ -53,8 +53,8 @@
         /* Telegram Button */
         .telegram-button {
             position: absolute;
-            top: 1px; /* Adjust to move up/down */
-            left: 1px; /* Adjust to move left/right */
+            top: 1px;
+            left: 1px;
             z-index: 15%;
             cursor: pointer;
         }
@@ -91,7 +91,7 @@
 
             // Listen for messages from the iframe
             window.addEventListener('message', function (event) {
-                if (event.origin !== 'https://en.gdplayer.tv') return; // Change this to the actual origin if needed
+                if (event.origin !== 'https://en.gdplayer.tv') return; 
                 if (event.data && event.data.type === 'prevent-open') {
                     alert('Blocked a new tab from opening.');
                 }
@@ -100,15 +100,55 @@
             // Load the iframe
             iframe.src = 'https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1';
 
-            // Hide the footer text after 10 seconds
+            // Hide the footer text after 25 seconds
             setTimeout(function () {
                 document.querySelector('.footer-text').style.display = 'none';
-            }, 25000); // 25 seconds delay to hide the text
+            }, 25000);
         }
 
         function openTelegram() {
             window.open('https://t.me/talhasmovie_request_bot', '_blank');
         }
+
+        // ===============================
+        // 🔒 Global Popup / Redirect Blocker
+        // ===============================
+        (function () {
+            // Block window.open
+            const originalOpen = window.open;
+            window.open = function (...args) {
+                console.warn("⚠️ Popup Blocked:", args);
+                return null;
+            };
+
+            // Block target="_blank" clicks
+            document.addEventListener("click", function (e) {
+                const el = e.target.closest("a");
+                if (el && el.target === "_blank") {
+                    e.preventDefault();
+                    console.warn("⚠️ Redirect Blocked:", el.href);
+                }
+            }, true);
+
+            // Block forced navigation
+            const originalAssign = window.location.assign;
+            const originalReplace = window.location.replace;
+            const originalHref = Object.getOwnPropertyDescriptor(Location.prototype, 'href').set;
+
+            window.location.assign = function (url) {
+                console.warn("⚠️ Redirect attempt blocked (assign):", url);
+            };
+
+            window.location.replace = function (url) {
+                console.warn("⚠️ Redirect attempt blocked (replace):", url);
+            };
+
+            Object.defineProperty(window.location, 'href', {
+                set: function (url) {
+                    console.warn("⚠️ Redirect attempt blocked (href):", url);
+                }
+            });
+        })();
     </script>
 </head>
 
@@ -123,6 +163,8 @@
         <img src="https://s1.gifyu.com/images/SAe3R.png" alt="Telegram">
     </div>
 
-    <iframe id="stream-iframe" sandbox="allow-scripts allow-same-origin allow-presentation" scrolling="no" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen; geolocation; web-share; speaker-selection; screen-wake-lock; Idle-detection" allowfullscreen></iframe>
+    <iframe id="stream-iframe" scrolling="no" frameborder="0"
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen; geolocation; web-share; speaker-selection; screen-wake-lock; Idle-detection"
+        allowfullscreen></iframe>
 </body>
 </html>
