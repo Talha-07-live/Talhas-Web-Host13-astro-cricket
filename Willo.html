@@ -28,13 +28,13 @@
     <button data-ch="ten-cricket">TEN</button>
   </div>
 
-  <iframe id="stream-iframe" sandbox="allow-scripts allow-same-origin" src="" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+  <iframe id="stream-iframe" src="" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
 
-  <div class="footer-text">Welcome to Talha's Full Proxy Stream — Clean player (no iframe block)</div>
+  <div class="footer-text">Welcome to Talha's Full Proxy Stream — Clean player (popup/ad minimized)</div>
 </div>
 
 <script>
-const WORKER_BASE_URL = 'https://liveon.rajtammi111212.workers.dev/';
+const WORKER_BASE_URL = 'https://liveon.rajtammi111212.workers.dev/'; // Update with your Worker URL
 const DEFAULT_CHANNEL = 'astro-cricket';
 
 function setChannel(ch){
@@ -47,37 +47,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.querySelectorAll('.channel-buttons button').forEach(btn=>{
     btn.addEventListener('click', ()=> setChannel(btn.getAttribute('data-ch')));
   });
-
-  parentHijackBlocker();
 });
-
-// Parent-side Hijack/Ads Blocker
-function parentHijackBlocker(){
-  document.addEventListener('click', e=>{
-    let el = e.target;
-    while(el && el!==document){
-      if(el.tagName==='A'){ 
-        if(el.dataset.href||el.target==='blank'){ e.preventDefault(); e.stopPropagation(); return false; }
-      }
-      el=el.parentNode;
-    }
-  }, true);
-
-  setInterval(()=>{
-    document.querySelectorAll('[id*="ads"], [class*="ads"], [id*="banner"], [class*="banner"], .popup, .interstitial').forEach(n=>n.remove());
-  }, 1500);
-
-  const mo = new MutationObserver(muts=>{
-    muts.forEach(m=>{
-      if(m.addedNodes) m.addedNodes.forEach(n=>{
-        if(n.nodeType===1){
-          if(/ads|banner|overlay|popup|interstitial|sponsor/i.test((n.id||'') + (n.className||''))) n.remove();
-        }
-      });
-    });
-  });
-  mo.observe(document.body,{childList:true,subtree:true});
-}
 </script>
 </body>
 </html>
