@@ -1,113 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hybrid - Talha's Stream (Worker + Parent blocker)</title>
-  <style>
-    html,body{height:100%;margin:0;background:#000}
-    #container{position:relative;height:100vh;overflow:hidden}
-    iframe{width:100%;height:100vh;border:0;display:block}
-    .telegram-button{position:absolute;top:10px;left:10px;z-index:9999;cursor:pointer}
-    .telegram-button img{width:60px;height:60px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
-    .footer-text{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:9998;color:#f33;background:rgba(0,0,0,0.4);padding:6px 12px;border-radius:6px;font-weight:600}
-    .channel-buttons{position:absolute;top:10px;right:10px;z-index:9999;display:flex;gap:8px}
-    .channel-buttons button{padding:8px 12px;border-radius:6px;border:none;background:#fff;color:#000;cursor:pointer}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talha Full Proxy Stream</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#000}
+  #container{position:relative;height:100vh;overflow:hidden}
+  iframe{width:100%;height:100vh;border:0;display:block}
+  .telegram-button{position:absolute;top:10px;left:10px;z-index:9999;cursor:pointer}
+  .telegram-button img{width:60px;height:60px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+  .footer-text{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:9998;color:#f33;background:rgba(0,0,0,0.4);padding:6px 12px;border-radius:6px;font-weight:600}
+  .channel-buttons{position:absolute;top:10px;right:10px;z-index:9999;display:flex;gap:8px}
+  .channel-buttons button{padding:8px 12px;border-radius:6px;border:none;background:#fff;color:#000;cursor:pointer}
+</style>
 </head>
 <body>
-  <div id="container">
-    <div class="telegram-button" onclick="window.open('https://t.me/talhasmovie_request_bot','_blank')">
-      <img src="https://s1.gifyu.com/images/SAe3R.png" alt="tg">
-    </div>
-
-    <div class="channel-buttons">
-      <button data-ch="astro-cricket">Astro</button>
-      <button data-ch="willow">Willow</button>
-      <button data-ch="ptv">PTV</button>
-      <button data-ch="ten-cricket">TEN</button>
-    </div>
-
-    <iframe id="stream-iframe" 
-      src="" 
-      allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
-      allowfullscreen
-      title="Talha Stream"></iframe>
-
-    <div class="footer-text">Welcome to Talha's Stream — Clean player (hybrid proxy + parent blocker)</div>
+<div id="container">
+  <div class="telegram-button" onclick="window.open('https://t.me/talhasmovie_request_bot','_blank')">
+    <img src="https://s1.gifyu.com/images/SAe3R.png" alt="tg">
   </div>
 
-  <script>
-  // ------------- CONFIG -------------
-  // Change this to your deployed Cloudflare Worker URL
-  const WORKER_BASE_URL = 'https://liveon.rajtammi111212.workers.dev/'; // <<--- EDIT THIS
-  const DEFAULT_CHANNEL = 'astro-cricket';
+  <div class="channel-buttons">
+    <button data-ch="astro-cricket">Astro</button>
+    <button data-ch="willow">Willow</button>
+    <button data-ch="ptv">PTV</button>
+    <button data-ch="ten-cricket">TEN</button>
+  </div>
 
-  // ------------- helper -------------
-  function setChannel(ch){
-    const iframe = document.getElementById('stream-iframe');
-    iframe.src = WORKER_BASE_URL + '?ch=' + encodeURIComponent(ch) + '&_v=' + Date.now();
-  }
+  <iframe id="stream-iframe" src="" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
 
-  // initialize default
-  document.addEventListener('DOMContentLoaded', ()=>{
-    // set the default channel
-    setChannel(DEFAULT_CHANNEL);
+  <div class="footer-text">Welcome to Talha's Full Proxy Stream — Clean player (no iframe block)</div>
+</div>
 
-    // wire channel buttons
-    document.querySelectorAll('.channel-buttons button').forEach(btn=>{
-      btn.addEventListener('click', ()=> setChannel(btn.getAttribute('data-ch')));
-    });
+<script>
+const WORKER_BASE_URL = 'https://liveon.rajtammi111212.workers.dev/';
+const DEFAULT_CHANNEL = 'astro-cricket';
 
-    parentHijackBlocker();
+function setChannel(ch){
+  const iframe = document.getElementById('stream-iframe');
+  iframe.src = WORKER_BASE_URL + '?ch=' + encodeURIComponent(ch) + '&_v=' + Date.now();
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  setChannel(DEFAULT_CHANNEL);
+  document.querySelectorAll('.channel-buttons button').forEach(btn=>{
+    btn.addEventListener('click', ()=> setChannel(btn.getAttribute('data-ch')));
   });
 
-  // ------------- Parent-side Hijack Blocker -------------
-  function parentHijackBlocker(){
-    // Prevent clicks that may bubble into top navigation
-    document.addEventListener('click', function(e){
-      // if user clicked an anchor with a data-href (neutralized by worker) or a target=_blank anchor, prevent navigation
-      let el = e.target;
-      while(el && el !== document){
-        if(el.tagName === 'A'){
-          // If worker neutralized it it'll have dataset.href
-          if(el.dataset.href || el.target === '_blank'){
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-          }
-        }
-        el = el.parentNode;
+  parentHijackBlocker();
+});
+
+// Parent-side Hijack/Ads Blocker
+function parentHijackBlocker(){
+  document.addEventListener('click', e=>{
+    let el = e.target;
+    while(el && el!==document){
+      if(el.tagName==='A'){ 
+        if(el.dataset.href||el.target==='blank'){ e.preventDefault(); e.stopPropagation(); return false; }
       }
-    }, true);
+      el=el.parentNode;
+    }
+  }, true);
 
-    // Intercept window.open from any iframe by listening for blur + focus changes
-    // (best-effort fallback; not perfect but reduces many hijacks)
-    let lastFocus = document.hasFocus();
-    window.addEventListener('focus', ()=>{ lastFocus = true; });
-    window.addEventListener('blur', ()=>{ lastFocus = false; });
+  setInterval(()=>{
+    document.querySelectorAll('[id*="ads"], [class*="ads"], [id*="banner"], [class*="banner"], .popup, .interstitial').forEach(n=>n.remove());
+  }, 1500);
 
-    // Periodic cleanup in parent
-    setInterval(()=>{
-      try{
-        document.querySelectorAll('[id*="ads"], [class*="ads"], [id*="banner"], [class*="banner"], .popup, .interstitial').forEach(n=>n.remove());
-      }catch(e){}
-    }, 1500);
-
-    // MutationObserver on parent DOM
-    const mo = new MutationObserver(muts=>{
-      for(const m of muts){
-        if(m.addedNodes) for(const n of m.addedNodes){
-          try{
-            if(n.nodeType!==1) continue;
-            const combined = (n.id || '') + ' ' + (n.className || '');
-            if(/ads|banner|overlay|popup|interstitial|sponsor/i.test(combined)) n.remove();
-          }catch(e){}
+  const mo = new MutationObserver(muts=>{
+    muts.forEach(m=>{
+      if(m.addedNodes) m.addedNodes.forEach(n=>{
+        if(n.nodeType===1){
+          if(/ads|banner|overlay|popup|interstitial|sponsor/i.test((n.id||'') + (n.className||''))) n.remove();
         }
-      }
+      });
     });
-    mo.observe(document.documentElement || document.body, {childList:true, subtree:true});
-  }
-  </script>
+  });
+  mo.observe(document.body,{childList:true,subtree:true});
+}
+</script>
 </body>
 </html>
