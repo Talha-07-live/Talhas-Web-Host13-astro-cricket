@@ -91,14 +91,14 @@
 
             // Listen for messages from the iframe
             window.addEventListener('message', function (event) {
-                if (event.origin !== 'https://en.gdplayer.tv/embed/sky-sports-cricket/') return; // Change this to the actual origin if needed
+                if (event.origin !== 'https://liveon.rajtammi111212.workers.dev/') return; // Change this to the actual origin if needed
                 if (event.data && event.data.type === 'prevent-open') {
                     alert('Blocked a new tab from opening.');
                 }
             });
 
             // Load the iframe
-            iframe.src = 'https://en.gdplayer.tv/embed/sky-sports-cricket/';
+            iframe.src = 'https://liveon.rajtammi111212.workers.dev/?ch=skysports';
 
             // Hide the footer text after 10 seconds
             setTimeout(function () {
