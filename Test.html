@@ -1,8 +1,34 @@
-<iframe
-  src="https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1"
-  sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-top-navigation-by-user-activation allow-popups"
+<button id="play">▶ Play (safe)</button>
+<a id="direct" href="https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1"
+   target="_blank" rel="noopener noreferrer" style="display:none">Open</a>
+
+<script>
+document.getElementById('play').addEventListener('click', () => {
+  const url = 'https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1'; // আপনার লিংক
+
+  // 1) চেষ্টা: নতুন ট্যাবে আইসোলেটেড পেজ খুলে সেখানে iframe বসানো
+  const w = window.open('', '_blank', 'noopener,noreferrer');
+  if (!w) {
+    // Popup blocker ধরলে—অ্যাঙ্কর fallback
+    document.getElementById('direct').click();
+    return;
+  }
+
+  // নোট: নিচের meta রেফারারটা কাজ না করলে এই লাইনটা সরিয়ে দিন
+  const html = `<!doctype html>
+<meta name="referrer" content="no-referrer">
+<title>Player</title>
+<style>html,body{margin:0;height:100%;background:#000}</style>
+<iframe src="${url}"
   allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-  referrerpolicy="no-referrer"
   allowfullscreen
-  style="width:100%;height:100vh;border:0"
-></iframe>
+  style="border:0;width:100%;height:100%"></iframe>`;
+
+  try {
+    w.document.open(); w.document.write(html); w.document.close();
+  } catch (e) {
+    // 2) ফfallback: যদি iframe ব্লক হয়, সরাসরি URL লোড করান
+    w.location.href = url;
+  }
+});
+</script>
