@@ -1,143 +1,91 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Safe Iframe Player</title>
-
-  <!-- Optional hardening: parent নিজে কোথাও navigate না করুক -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; img-src * data: blob:; media-src *; frame-src https:; object-src 'none'; base-uri 'none'; form-action 'self';">
-
   <style>
     html, body {
       margin: 0; padding: 0; height: 100%;
-      background: #000; color: #fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #000; color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
     .wrap {
-      position: relative; width: 100%; height: 100vh; overflow: hidden;
-      background: #000;
+      position: relative; width: 100%; height: 100vh;
     }
     iframe {
-      width: 100%; height: 100%; border: 0;
-      background: #000;
+      width: 100%; height: 100%; border: 0; background: #000;
     }
-    /* Invisible overlay: hijack click থামাতে উপরে থাকে */
     .overlay {
       position: absolute; inset: 0; z-index: 10;
       background: transparent;
-      pointer-events: auto;
     }
-    /* Control bar */
     .controls {
-      position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
+      position: absolute; left: 50%; bottom: 20px;
+      transform: translateX(-50%);
       display: flex; gap: 10px; z-index: 20;
-      background: rgba(0,0,0,.5); padding: 10px 12px; border-radius: 14px; backdrop-filter: blur(6px);
+      background: rgba(0,0,0,.5);
+      padding: 10px 12px; border-radius: 14px;
+      backdrop-filter: blur(6px);
       border: 1px solid rgba(255,255,255,.15);
     }
     .btn {
-      appearance: none; border: 0; border-radius: 10px; padding: 10px 14px;
-      background: rgba(255,255,255,.12); color: #fff; font-weight: 600; cursor: pointer;
+      border: 0; border-radius: 10px; padding: 10px 14px;
+      background: rgba(255,255,255,.12); color: #fff;
+      font-weight: 600; cursor: pointer;
     }
     .btn:hover { background: rgba(255,255,255,.2); }
-    .hint {
-      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-      font-size: 13px; opacity: .8; z-index: 20;
-      background: rgba(0,0,0,.5); padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12);
-    }
   </style>
 </head>
 <body>
   <div class="wrap" id="wrap">
-    <!--
-      SANDBOX RULES (most important):
-      - allow-popups                → নতুন ট্যাব খোলা যাবে (ads background এ খুলে যাবে)
-      - NO allow-top-navigation     → parent পেজ hijack/redirect করা যাবে না
-      - NO allow-top-navigation-by-user-activation → ক্লিক করলেও parent এ ওঠা যাবে না
-      - allow-scripts / allow-forms → প্লেয়ারের ভিতরের স্ক্রিপ্ট/ফর্ম কাজ করবে
-      - allow-pointer-lock etc.     → UX ফিচার (optional)
-    -->
-    <iframe
-      id="liveFrame"
-      src="https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1"
-      allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-      sandbox="allow-scripts allow-forms allow-popups allow-pointer-lock allow-orientation-lock allow-presentation"
-      referrerpolicy="no-referrer"
-    ></iframe>
+    <!-- sandbox বাদ দিলাম -->
+    <iframe id="liveFrame" 
+      src="https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1" 
+      allow="autoplay; fullscreen; picture-in-picture; encrypted-media">
+    </iframe>
 
-    <!-- Invisible shield -->
-    <div class="overlay" id="overlay" aria-hidden="true"></div>
-
-    <div class="hint">Popups allowed (background), but this page won’t redirect.</div>
+    <div class="overlay" id="overlay"></div>
 
     <div class="controls">
       <button class="btn" id="btnUnmute">Unmute (Safe Click)</button>
       <button class="btn" id="btnFullscreen">Fullscreen</button>
-      <button class="btn" id="btnSafe2s">Safe Click • 2s</button>
     </div>
   </div>
 
   <script>
     const wrap = document.getElementById('wrap');
-    const iframe = document.getElementById('liveFrame');
     const overlay = document.getElementById('overlay');
-    const btnUnmute = document.getElementById('btnUnmute');
-    const btnFullscreen = document.getElementById('btnFullscreen');
-    const btnSafe2s = document.getElementById('btnSafe2s');
+    const iframe = document.getElementById('liveFrame');
 
-    // Helper: request fullscreen on container (iframe-only fullscreen কিছু ব্রাউজারে সমস্যা দেয়)
-    function goFullscreen() {
-      const el = wrap;
-      if (el.requestFullscreen) el.requestFullscreen();
-      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-      else if (el.msRequestFullscreen) el.msRequestFullscreen();
-    }
+    // Fullscreen
+    document.getElementById('btnFullscreen').onclick = () => {
+      if (wrap.requestFullscreen) wrap.requestFullscreen();
+      else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
+      else if (wrap.msRequestFullscreen) wrap.msRequestFullscreen();
+    };
 
-    // Overlay temporarily off ⇒ তুমি iframe ভিতরে ক্লিক করতে পারবে
-    function allowClickTemporarily(ms = 2000) {
+    // Unmute safe click (overlay hide 2s)
+    document.getElementById('btnUnmute').onclick = () => {
       overlay.style.display = 'none';
-      window.clearTimeout(allowClickTemporarily._t);
-      allowClickTemporarily._t = window.setTimeout(() => {
-        overlay.style.display = 'block';
-      }, ms);
+      setTimeout(() => overlay.style.display = 'block', 2000);
+    };
+
+    // -------- Hijack protection --------
+    // override window.open → সব popup নতুন ট্যাবে যাবে, main পেজে নয়
+    const _open = window.open;
+    window.open = function(url, name, specs) {
+      return _open.call(window, url, "_blank", "noopener,noreferrer");
+    };
+
+    // block iframe থেকে parent redirect
+    function stopHijack() {
+      Object.defineProperty(window, 'location', {
+        value: window.location,
+        writable: false
+      });
     }
-
-    // Unmute button: আমাদের পক্ষে সরাসরি unmute করা সম্ভব নয় (cross-origin),
-    // তাই আমরা নিরাপদে overlay সরিয়ে দেই, তুমি ভিতরের mute/unmute-এ ক্লিক করবে।
-    btnUnmute.addEventListener('click', () => {
-      allowClickTemporarily(2500);
-    });
-
-    // Fullscreen on container
-    btnFullscreen.addEventListener('click', () => {
-      goFullscreen();
-    });
-
-    // Safe click window (2 seconds)
-    btnSafe2s.addEventListener('click', () => {
-      allowClickTemporarily(2000);
-    });
-
-    // Extra hardening (parent-এ):
-    // 1) Parent-এর window.open override করে দিচ্ছি যাতে parent থেকে অনাকাঙ্খিত popup না হয়।
-    //    (iframe sandboxed, তাই iframe → parent hijack হবে না; এটা কেবল অতিরিক্ত সুরক্ষা)
-    (function hardenParent() {
-      const _open = window.open;
-      window.open = function(url, name, specs) {
-        // parent থেকে কোনো script window.open ডাকলে always background & no-opener
-        const w = _open.call(window, url, name || '_blank', specs || 'noopener,noreferrer');
-        return w;
-      };
-      // top-level navigation guard (last resort)
-      const blockNav = (e) => {
-        try {
-          // Prevent any script trying to assign location on parent
-          Object.defineProperty(window, 'location', { writable: false });
-        } catch(_) {}
-      };
-      window.addEventListener('beforeunload', blockNav, {capture: true});
-    })();
-
-    // Tip: যদি কখনো ভিডিওর UI-তে বেশি ইন্টার‌্যাকশন দরকার হয়, Safe Click-কে 4-5s করা যায়।
+    stopHijack();
   </script>
 </body>
 </html>
