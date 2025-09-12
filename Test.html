@@ -1,34 +1,75 @@
-<button id="play">▶ Play (safe)</button>
-<a id="direct" href="https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1"
-   target="_blank" rel="noopener noreferrer" style="display:none">Open</a>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Safe Player (Sandbox Alternative)</title>
+  <meta name="color-scheme" content="dark light">
+  <style>
+    :root { --bg:#0b0f14; --fg:#e8f0ff; --muted:#9bb0c9; --br:14px; }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:radial-gradient(900px 600px at 70% -10%, #132135 0%, var(--bg) 60%);
+      color:var(--fg);font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    .wrap{max-width:720px;margin:0 auto;padding:24px}
+    .card{background:#0f1620;border:1px solid #1e2a3a;border-radius:var(--br);padding:18px}
+    h1{font-size:22px;margin:0 0 8px}
+    p{color:var(--muted);margin:.5rem 0 1rem}
+    button{padding:12px 16px;border-radius:12px;border:1px solid #223349;background:#132238;color:#fff;cursor:pointer}
+    button:hover{background:#1b2f46}
+    .note{margin-top:10px;color:#a0b6d3;font-size:14px}
+    code{background:#0c1726;padding:1px 6px;border-radius:6px;border:1px solid #1f3047}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Safe Player (Sandbox Alternative)</h1>
+      <p>Sandbox দিলেই না চললে—এক ক্লিকে <b>আলাদা ট্যাব</b> এ আইসোলেটেড প্লেয়ার খুলুন। আপনার মেইন পেজ সেফ থাকবে (no <code>window.opener</code>).</p>
 
-<script>
-document.getElementById('play').addEventListener('click', () => {
-  const url = 'https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1'; // আপনার লিংক
+      <button id="play">▶ Play (open isolated tab)</button>
+      <!-- direct-link fallback (used only if popup blocked) -->
+      <a id="direct" href="#" target="_blank" rel="noopener noreferrer" style="display:none">Open</a>
 
-  // 1) চেষ্টা: নতুন ট্যাবে আইসোলেটেড পেজ খুলে সেখানে iframe বসানো
-  const w = window.open('', '_blank', 'noopener,noreferrer');
-  if (!w) {
-    // Popup blocker ধরলে—অ্যাঙ্কর fallback
-    document.getElementById('direct').click();
-    return;
-  }
+      <div class="note">
+        আপনার লিংক বদলাতে স্ক্রিপ্টের উপরের <code>PLAYER_URL</code> কনস্ট্যান্ট এডিট করুন।
+      </div>
+    </div>
+  </div>
 
-  // নোট: নিচের meta রেফারারটা কাজ না করলে এই লাইনটা সরিয়ে দিন
-  const html = `<!doctype html>
+  <script>
+    // === CONFIG: এখানে আপনার iframe লিংক দিন ===
+    const PLAYER_URL = 'https://en.gdplayer.tv/live-tv/astro-cricket/?embed=1';
+
+    document.getElementById('play').addEventListener('click', () => {
+      // 1) নতুন ট্যাব খুলে তার ভেতরে unsandboxed iframe ইনজেক্ট (isolation)
+      const w = window.open('', '_blank', 'noopener,noreferrer');
+      if (!w) {
+        // Popup blocker ধরলে → ফfallback (ডাইরেক্ট লিঙ্ক)
+        const a = document.getElementById('direct');
+        a.href = PLAYER_URL;
+        a.click();
+        return;
+      }
+
+      // নোট: meta referrer কাজ না করলে নিচের লাইনটা চাইলে সরিয়ে দিন
+      const html = `<!doctype html>
 <meta name="referrer" content="no-referrer">
 <title>Player</title>
 <style>html,body{margin:0;height:100%;background:#000}</style>
-<iframe src="${url}"
+<iframe src="${PLAYER_URL}"
   allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
   allowfullscreen
   style="border:0;width:100%;height:100%"></iframe>`;
 
-  try {
-    w.document.open(); w.document.write(html); w.document.close();
-  } catch (e) {
-    // 2) ফfallback: যদি iframe ব্লক হয়, সরাসরি URL লোড করান
-    w.location.href = url;
-  }
-});
-</script>
+      try {
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+      } catch (e) {
+        // 2) শেষ ফfallback: সরাসরি URL-এ নিয়ে যান
+        w.location.href = PLAYER_URL;
+      }
+    });
+  </script>
+</body>
+</html>
