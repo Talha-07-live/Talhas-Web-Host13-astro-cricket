@@ -38,7 +38,7 @@
       color:#fff; font: 700 20px/1.2 system-ui, sans-serif;
     }
     .spinner {
-      width:96px; height:96px; border-radius:50%;
+      width:56px; height:56px; border-radius:50%;
       border:10px solid #ffffff80; border-top-color:#ff5722; animation: spin 1s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -87,7 +87,7 @@
           overlay.style.opacity = '0';
           setTimeout(()=> overlay.style.display = 'none', 600);
         }
-      }, 12000);
+      }, 10000);
     };
 
     function openTelegram() { window.open('https://t.me/talhasmovie_request_bot', '_blank'); }
