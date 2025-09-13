@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +9,7 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
+            background-color: #000;
             position: relative;
         }
 
@@ -20,6 +19,47 @@
             border: none;
         }
 
+        /* Overlay Thumbnail */
+        #thumbOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000 url('https://s10.gifyu.com/images/SrMU9.png') center center no-repeat;
+            background-size: cover;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #ff5722;
+            border-radius: 50%;
+            width: 90px;
+            height: 90px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg);}
+            100% { transform: rotate(360deg);}
+        }
+
+        .loading-text {
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 8px #000;
+        }
+
+        /* Footer Text */
         .footer-text {
             position: absolute;
             top: 0;
@@ -31,7 +71,7 @@
             font-weight: bold;
             white-space: nowrap;
             overflow: hidden;
-            z-index: 10;
+            z-index: 1000;
         }
 
         .footer-text span {
@@ -41,21 +81,16 @@
         }
 
         @keyframes slide {
-            0% {
-                transform: translateX(8%);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
+            0% { transform: translateX(8%); }
+            100% { transform: translateX(-100%); }
         }
 
         /* Telegram Button */
         .telegram-button {
             position: absolute;
-            top: 1px; /* Adjust to move up/down */
-            left: 1px; /* Adjust to move left/right */
-            z-index: 15%;
+            top: 1px;
+            left: 1px;
+            z-index: 1001;
             cursor: pointer;
         }
 
@@ -69,7 +104,9 @@
 
     <script>
         window.onload = function () {
-            // List of allowed domains
+            const iframe = document.getElementById('stream-iframe');
+
+            // Allowed domains check
             const allowedDomains = [
                 'https://talha-07-live.github.io/Talhas-Web-Host13-astro-cricket/',
                 'https://talhas.collection.page.gd/',
@@ -78,8 +115,6 @@
             ];
 
             const referrer = document.referrer;
-
-            // Check if the request is coming from any of the allowed domains
             const isAllowed = allowedDomains.some(domain => referrer.startsWith(domain));
 
             if (!isAllowed) {
@@ -87,23 +122,22 @@
                 return;
             }
 
-            const iframe = document.getElementById('stream-iframe');
-
-            // Listen for messages from the iframe
-            window.addEventListener('message', function (event) {
-                if (event.origin !== 'https://en.gdplayer.tv') return; // Change this to the actual origin if needed
-                if (event.data && event.data.type === 'prevent-open') {
-                    alert('Blocked a new tab from opening.');
-                }
-            });
-
-            // Load the iframe
+            // Load iframe
             iframe.src = 'https://phls.rajtammi111212.workers.dev/embed?ch=willow';
 
-            // Hide the footer text after 10 seconds
+            // Hide footer after 25s
             setTimeout(function () {
                 document.querySelector('.footer-text').style.display = 'none';
-            }, 26000); // 25 seconds delay to hide the text
+            }, 26000);
+
+            // Listen for message from iframe (worker embed page should postMessage when video plays)
+            window.addEventListener("message", function (event) {
+                if (event.data && event.data.type === "video-start") {
+                    const overlay = document.getElementById("thumbOverlay");
+                    overlay.style.opacity = "0";
+                    setTimeout(() => overlay.style.display = "none", 800);
+                }
+            });
         }
 
         function openTelegram() {
@@ -111,7 +145,6 @@
         }
     </script>
 </head>
-
 <body>
 
     <div class="footer-text">
@@ -123,6 +156,14 @@
         <img src="https://s1.gifyu.com/images/SAe3R.png" alt="Telegram">
     </div>
 
-    <iframe id="stream-iframe" sandbox="allow-same-origin allow-scripts" scrolling="no" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen; geolocation; web-share; speaker-selection; screen-wake-lock; Idle-detection" allowfullscreen></iframe>
+    <!-- Overlay Thumbnail -->
+    <div id="thumbOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Please Wait Buffering...</div>
+    </div>
+
+    <iframe id="stream-iframe" sandbox="allow-same-origin allow-scripts" scrolling="no" frameborder="0"
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen; geolocation; web-share; speaker-selection; screen-wake-lock; Idle-detection"
+        allowfullscreen></iframe>
 </body>
 </html>
