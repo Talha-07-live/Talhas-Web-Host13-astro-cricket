@@ -1,93 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shaka HLS Player · GH Pages</title>
+  <title>Shaka HLS Player (Locked) · GH Pages</title>
+  <!-- 🔒 CSP: শুধুই নির্দিষ্ট ডোমেইনে সংযোগ দাও (প্রয়োজনে বদলাবে) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://www.gstatic.com 'unsafe-inline'; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; img-src * data: blob:; media-src https://tataplay.slivcdn.com blob:; connect-src https://tataplay.slivcdn.com 'self'; font-src 'self' https://cdnjs.cloudflare.com; frame-ancestors 'self'; base-uri 'self';" />
+
   <!-- Shaka Player UI CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.1/controls.min.css" integrity="sha512-2g1GkQp5qk4mDw1N8l7kS0dXOPQGx7u19DkX4wTCqZEx0eO71iX5qUXwP05kUeq7pZ5f8bqkM2HhJx8mX39A0A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.1/controls.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    :root {
-      --bg: #0b0f17;
-      --panel: #111827;
-      --accent: #6ee7ff;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --rounded: 18px;
-    }
-    body {
-      margin: 0;
-      background: radial-gradient(1200px 800px at 10% -10%, #182132 0%, transparent 50%), linear-gradient(180deg, #0b0f17 0%, #0b0f17 100%);
-      color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      min-height: 100vh;
-    }
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px; padding: 12px 16px; position: sticky; top: 0; z-index: 30;
-      background: linear-gradient(180deg, rgba(11,15,23,.9), rgba(11,15,23,.6));
-      backdrop-filter: saturate(1.2) blur(6px);
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-    header h1 { font-size: 16px; margin: 0; font-weight: 600; letter-spacing: .2px; }
-    header .actions { display: flex; gap: 8px; align-items: center; }
-    .btn {
-      appearance: none; border: 1px solid rgba(255,255,255,.12); background: #0f172a; color: var(--text);
-      border-radius: 999px; padding: 8px 12px; font-size: 13px; cursor: pointer; transition: transform .1s ease, border-color .2s ease;
-    }
-    .btn:hover { border-color: rgba(255,255,255,.28); }
-    .btn:active { transform: scale(.98); }
-
-    /* Player shell */
-    .wrap { max-width: 1100px; margin: 18px auto 40px; padding: 0 14px; }
-    .player-card {
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border: 1px solid rgba(255,255,255,.08); border-radius: var(--rounded);
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
-      overflow: clip;
-    }
-    .shaka-video-container { aspect-ratio: 16/9; background: #0a0e14; }
-    video { width: 100%; height: 100%; display: block; }
-
-    /* Watermark */
-    .watermark {
-      position: absolute; right: 12px; top: 12px; z-index: 5; pointer-events: none;
-      font-weight: 600; font-size: 12px; letter-spacing: .3px; padding: 6px 10px; border-radius: 999px;
-      color: #0b1324; background: linear-gradient(90deg, #a5f3fc, #93c5fd); opacity: .85;
-      mix-blend-mode: screen; user-select: none;
-    }
-    .corner-info { position: absolute; left: 12px; top: 12px; z-index: 5; font-size: 12px; color: var(--muted); }
-
-    /* Unmute overlay */
-    .unmute-overlay {
-      position: absolute; inset: 0; display: grid; place-items: center; z-index: 6;
-      background: radial-gradient(600px 400px at 50% 50%, rgba(17,24,39,.35), rgba(17,24,39,.0));
-      opacity: 0; visibility: hidden; transition: .25s ease;
-    }
-    .unmute-overlay.show { opacity: 1; visibility: visible; }
-    .unmute-btn {
-      padding: 12px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.2);
-      background: #0f172a; color: var(--text); font-weight: 600; cursor: pointer; font-size: 14px;
-      box-shadow: 0 8px 20px rgba(0,0,0,.35);
-    }
-
-    /* Theater mode */
-    .theater body { overflow-y: auto; }
-    .theater .shaka-video-container { aspect-ratio: 21/9; }
-
-    /* Tiny helper */
-    .hint { margin: 14px 2px; font-size: 12px; color: var(--muted); }
-    .hint code { background: rgba(255,255,255,.06); padding: 2px 6px; border-radius: 6px; }
-
-    /* Error toast */
-    .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 20px; z-index: 40; display: none; }
-    .toast.show { display: block; }
-    .toast > div { background: #111827; border: 1px solid rgba(255,255,255,.12); color: var(--text); padding: 10px 14px; border-radius: 10px; }
+    :root { --bg:#0b0f17; --panel:#111827; --accent:#6ee7ff; --text:#e5e7eb; --muted:#94a3b8; --rounded:18px; }
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 800px at 10% -10%,#182132 0%,transparent 50%),linear-gradient(180deg,#0b0f17 0%,#0b0f17 100%);color:var(--text);font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;position:sticky;top:0;z-index:30;background:linear-gradient(180deg,rgba(11,15,23,.92),rgba(11,15,23,.65));backdrop-filter:saturate(1.2) blur(6px);border-bottom:1px solid rgba(255,255,255,.06)}
+    header h1{font-size:16px;margin:0;font-weight:600}
+    .btn{border:1px solid rgba(255,255,255,.12);background:#0f172a;color:var(--text);border-radius:999px;padding:8px 12px;font-size:13px;cursor:pointer}
+    .wrap{max-width:1100px;margin:18px auto 40px;padding:0 14px}
+    .player-card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:var(--rounded);box-shadow:0 10px 30px rgba(0,0,0,.35);overflow:clip}
+    .shaka-video-container{aspect-ratio:16/9;background:#0a0e14;position:relative}
+    video{width:100%;height:100%;display:block}
+    .watermark{position:absolute;right:12px;top:12px;z-index:5;pointer-events:none;font-weight:600;font-size:12px;letter-spacing:.3px;padding:6px 10px;border-radius:999px;color:#0b1324;background:linear-gradient(90deg,#a5f3fc,#93c5fd);opacity:.85;mix-blend-mode:screen;user-select:none}
+    .corner-info{position:absolute;left:12px;top:12px;z-index:5;font-size:12px;color:var(--muted)}
+    .unmute-overlay{position:absolute;inset:0;display:grid;place-items:center;z-index:6;background:radial-gradient(600px 400px at 50% 50%,rgba(17,24,39,.35),rgba(17,24,39,0));opacity:0;visibility:hidden;transition:.25s ease}
+    .unmute-overlay.show{opacity:1;visibility:visible}
+    .unmute-btn{padding:12px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:#0f172a;color:var(--text);font-weight:600;cursor:pointer;font-size:14px;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+    .hint{margin:14px 2px;font-size:12px;color:var(--muted)}
+    .hint code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:6px}
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;z-index:40;display:none}
+    .toast.show{display:block}
+    .toast>div{background:#111827;border:1px solid rgba(255,255,255,.12);color:var(--text);padding:10px 14px;border-radius:10px}
   </style>
 </head>
 <body>
   <header>
-    <h1>Shaka HLS Player <span style="opacity:.6">— GitHub Pages</span></h1>
+    <h1>Shaka HLS Player <span style="opacity:.6">— Locked to Allowed URLs</span></h1>
     <div class="actions">
       <button id="btnTheater" class="btn" title="Toggle theater mode (T)">Theater</button>
       <button id="btnReset" class="btn" title="Clear resume point">Reset resume</button>
@@ -98,7 +45,7 @@
     <div class="player-card">
       <div id="videoContainer" class="shaka-video-container">
         <div class="corner-info" id="cornerInfo"></div>
-        <div class="watermark" id="wm">Shaka HLS</div>
+        <div class="watermark" id="wm">Private</div>
         <div class="unmute-overlay" id="unmute">
           <button class="unmute-btn" id="unmuteBtn">🔊 Tap to unmute</button>
         </div>
@@ -107,182 +54,191 @@
     </div>
 
     <p class="hint">
-      Use with URL params: <code>?src=&lt;HLS.m3u8&gt;&amp;title=My+Stream&amp;poster=&lt;img&gt;&amp;muted=0&amp;autoplay=1&amp;start=0&amp;wm=Your+Brand</code>
+      এই প্লেয়ারটি <strong>হোয়াইটলিস্টেড URL</strong> ছাড়া কিছুই প্লে করবে না। <code>allowed.json</code> দিয়ে URL আপডেট করা যাবে।
     </p>
   </main>
 
   <div class="toast" id="toast"><div></div></div>
 
-  <!-- Optional: Chromecast sender (button only appears if a device is available) -->
+  <!-- Optional: Chromecast sender -->
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-
-  <!-- Shaka Player core + UI -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.1/shaka-player.compiled.min.js" integrity="sha512-kJcWQy7pWv+prF2x4nQyLxQGTrnYu09CHa55SqyMLl5b/pc0z9G02rIwiByFfrs6F1Bi8OZ1aJYB3o6wqXoQXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.1/shaka-player.ui.min.js" integrity="sha512-xJwvn2bH/7g70y8nwxN8cXQWwDqeUj9ZhqQb6nXc0x0gKkF/0E+6aXg8JbPw7m1jM25q2G8Z3UCeK0aT1r+ZyQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Shaka core + UI -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.1/shaka-player.compiled.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.1/shaka-player.ui.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script>
-    (function() {
-      const qs = new URLSearchParams(location.search);
-      const $ = (id) => document.getElementById(id);
-      const video = $('video');
-      const container = $('videoContainer');
-      const wm = $('wm');
-      const corner = $('cornerInfo');
-      const toast = $('toast');
+  (function () {
+    const qs = new URLSearchParams(location.search);
+    const $ = (id) => document.getElementById(id);
+    const video = $('video');
+    const container = $('videoContainer');
+    const wm = $('wm');
+    const corner = $('cornerInfo');
+    const toast = $('toast');
 
-      // Read URL params
-      const manifestUri = qs.get('src') || 'https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_664.m3u8';
-      const poster = qs.get('poster');
-      const title = qs.get('title') || 'Demo';
-      const startSec = parseFloat(qs.get('start') || '0');
-      const muted = qs.get('muted') === '0' ? false : true; // default muted for autoplay on mobile
-      const autoplay = qs.get('autoplay') === '0' ? false : true;
-      const watermark = qs.get('wm') || 'Shaka HLS';
-      const textLang = qs.get('sub') || 'en';
-      const audioLang = qs.get('audio') || undefined;
-      const resume = qs.get('resume') === '0' ? false : true; // save & restore time by default
+    // ✅ 1) স্ট্যাটিক অ্যালাউ-লিস্ট (এখানেই নিজের URL বসাও)
+    const STATIC_ALLOWED = [
+      'https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_664.m3u8'
+    ];
 
-      if (poster) video.setAttribute('poster', poster);
-      wm.textContent = watermark;
-      document.title = (title ? title + ' · ' : '') + 'Shaka HLS Player';
+    // ✅ 2) allowed.json (ঐচ্ছিক): repo root-এ রাখবে → {"urls":["https://...m3u8", "..."]}
+    async function loadAllowedFromJson(){
+      try {
+        const r = await fetch('allowed.json', {cache:'no-store'});
+        if (!r.ok) return [];
+        const j = await r.json();
+        return Array.isArray(j.urls) ? j.urls.filter(u => typeof u === 'string') : [];
+      } catch (_) { return []; }
+    }
 
-      // Unmute UX for autoplay
-      video.muted = muted; // autoplay-friendly default
-      const unmuteOverlay = $('unmute');
-      const unmuteBtn = $('unmuteBtn');
-      function toggleUnmuteOverlay(show) {
-        unmuteOverlay.classList[show ? 'add' : 'remove']('show');
+    function notify(message, ms = 3000) {
+      toast.firstElementChild.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(notify._t);
+      notify._t = setTimeout(() => toast.classList.remove('show'), ms);
+    }
+
+    function urlEqual(a, b){
+      try { return new URL(a).href === new URL(b).href; } catch { return a === b; }
+    }
+
+    function pickManifest(allowedList){
+      // src param দেওয়া থাকলে সেটি allow list-এ থাকলে নেবে, নাহলে ব্লক করবে
+      const srcParam = qs.get('src');
+      if (srcParam){
+        const ok = allowedList.some(u => urlEqual(u, srcParam));
+        if (!ok){
+          throw new Error('URL not allowed by whitelist');
+        }
+        return srcParam;
       }
-      if (muted) toggleUnmuteOverlay(true);
-      unmuteBtn.addEventListener('click', () => {
-        video.muted = false; toggleUnmuteOverlay(false);
-      });
+      // না থাকলে প্রথম অ্যালাউ URL
+      return allowedList[0];
+    }
 
-      // Install polyfills & sanity-check
-      shaka.polyfill.installAll();
-      if (!shaka.Player.isBrowserSupported()) {
-        return notify('This browser is not fully supported by Shaka Player. Try Chrome/Edge/Firefox or Safari.', 8000);
-      }
+    // UI prefs
+    const title = qs.get('title') || 'Private Stream';
+    const poster = qs.get('poster');
+    const muted = qs.get('muted') === '0' ? false : true; // mobile autoplay safe
+    const autoplay = qs.get('autoplay') === '0' ? false : true;
+    const startSec = parseFloat(qs.get('start') || '0');
+    const watermark = qs.get('wm') || 'Private';
+    const resume = qs.get('resume') === '0' ? false : true;
 
-      // Build UI overlay
-      const player = new shaka.Player(video);
-      const ui = new shaka.ui.Overlay(player, container, video);
-      const controls = ui.getControls();
+    if (poster) video.setAttribute('poster', poster);
+    wm.textContent = watermark;
+    document.title = title + ' · Shaka HLS Player (Locked)';
 
-      // UI configuration (tooltips, quality picker, PiP, cast, etc.)
-      const uiConfig = {
-        addSeekBar: true,
-        addBigPlayButton: true,
-        enableTooltips: true,
-        controlPanelElements: [
-          'play_pause', 'time_and_duration', 'spacer', 'mute', 'volume', 'playback_rate', 'picture_in_picture', 'airplay', 'cast', 'captions', 'language', 'quality', 'fullscreen', 'overflow_menu'
-        ],
-        overflowMenuButtons: ['quality', 'captions', 'language', 'playback_rate', 'picture_in_picture', 'airplay', 'remote', 'statistics'],
-        playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5],
-        seekBarColors: { base: 'rgba(255,255,255,.25)', buffered: 'rgba(255,255,255,.5)', played: 'white' },
-        statisticsList: ['width','height','streamBandwidth','decodedFrames','droppedFrames','playTime','bufferingTime']
-      };
-      ui.configure(uiConfig);
+    // Unmute overlay
+    video.muted = muted;
+    const unmuteOverlay = $('unmute');
+    const unmuteBtn = $('unmuteBtn');
+    function toggleUnmuteOverlay(show){ unmuteOverlay.classList[show?'add':'remove']('show'); }
+    if (muted) toggleUnmuteOverlay(true);
+    unmuteBtn.addEventListener('click', () => { video.muted = false; toggleUnmuteOverlay(false); });
 
-      // Player configuration (HLS, ABR, low-latency friendly)
-      player.configure({
-        preferredTextLanguage: textLang,
-        preferredAudioLanguage: audioLang,
-        streaming: {
-          lowLatencyMode: true,              // auto-activates for LL-HLS playlists
-          bufferingGoal: 1.0,                // seconds
-          rebufferingGoal: 0.5,
-          stallEnabled: true,
-          retryParameters: { timeout: 8000, maxAttempts: 3, baseDelay: 500 }
-        },
-        manifest: {
-          hls: {
-            ignoreTextStreamFailures: true,
-            liveSegmentsDelay: 3             // target ~3 segments behind live edge when not LL-HLS
-          },
-          defaultPresentationDelay: 3
-        },
-        abr: {
-          enabled: true,
-          switchInterval: 2,                 // seconds between switches
-          defaultBandwidthEstimate: 2_500_000
-        }
-      });
+    // Shaka setup
+    shaka.polyfill.installAll();
+    if (!shaka.Player.isBrowserSupported()){
+      return notify('এই ব্রাউজার Shaka Player সাপোর্ট করে না. Chrome/Edge/Firefox ব্যবহার করুন.', 6000);
+    }
 
-      // Display some quick info
-      corner.textContent = new URL(manifestUri).hostname + ' • ' + (autoplay ? 'autoplay' : 'click to play');
+    const player = new shaka.Player(video);
+    const ui = new shaka.ui.Overlay(player, container, video);
+    const controls = ui.getControls();
+    ui.configure({
+      addSeekBar:true, addBigPlayButton:true, enableTooltips:true,
+      controlPanelElements:[ 'play_pause','time_and_duration','spacer','mute','volume','playback_rate','picture_in_picture','airplay','cast','captions','language','quality','fullscreen','overflow_menu' ],
+      playbackRates:[0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.5],
+      seekBarColors:{ base:'rgba(255,255,255,.25)', buffered:'rgba(255,255,255,.5)', played:'white' },
+      statisticsList:['width','height','streamBandwidth','decodedFrames','droppedFrames','playTime','bufferingTime']
+    });
 
-      // Load & play
-      init().catch(onError);
-      async function init() {
-        // Save & restore playback time
-        const key = 'shaka:resume:' + manifestUri;
-        if (resume) {
-          const t = parseFloat(localStorage.getItem(key) || '0');
-          if (t > 5) {
-            video.currentTime = t;
-          }
-          let lastSaved = 0;
-          video.addEventListener('timeupdate', () => {
-            const now = video.currentTime;
-            if (Math.abs(now - lastSaved) > 10) {
-              localStorage.setItem(key, String(now));
-              lastSaved = now;
-            }
-          });
-        }
+    player.configure({
+      streaming:{ lowLatencyMode:true, bufferingGoal:1.0, rebufferingGoal:0.5, stallEnabled:true, retryParameters:{ timeout:8000, maxAttempts:3, baseDelay:500 } },
+      manifest:{ hls:{ ignoreTextStreamFailures:true, liveSegmentsDelay:3 }, defaultPresentationDelay:3 },
+      abr:{ enabled:true, switchInterval:2, defaultBandwidthEstimate:2_500_000 }
+    });
 
-        // Listen for errors
-        player.addEventListener('error', onErrorEvent);
-        controls.addEventListener('error', onErrorEvent);
+    player.addEventListener('error', (e)=> onError(e.detail));
+    controls.addEventListener('error', (e)=> onError(e.detail));
 
-        await player.load(manifestUri);
-        controls.dispatchEvent(new Event('uiupdated'));
+    run().catch(onError);
 
-        // Start at specific position if requested
-        if (startSec > 0) {
-          video.currentTime = startSec;
-        }
-        if (autoplay) {
-          try { await video.play(); } catch (_) { /* user gesture may be required */ }
-        }
+    async function run(){
+      // Combine allow lists
+      const dynamicList = await loadAllowedFromJson();
+      const ALLOWED = Array.from(new Set([...STATIC_ALLOWED, ...dynamicList]));
+      if (!ALLOWED.length) throw new Error('No allowed URLs configured');
+
+      const manifestUri = pickManifest(ALLOWED);
+      corner.textContent = new URL(manifestUri).hostname + ' • locked';
+
+      // Resume position
+      const key = 'shaka:resume:' + manifestUri;
+      if (resume){
+        const t = parseFloat(localStorage.getItem(key) || '0');
+        if (t > 5) video.currentTime = t;
+        let lastSaved = 0;
+        video.addEventListener('timeupdate', ()=>{
+          const now = video.currentTime;
+          if (Math.abs(now - lastSaved) > 10){ localStorage.setItem(key, String(now)); lastSaved = now; }
+        });
       }
 
-      // Keyboard shortcuts (focus on page)
-      window.addEventListener('keydown', (e) => {
-        if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
-        switch (e.key.toLowerCase()) {
-          case 'k': video.paused ? video.play() : video.pause(); break;
-          case 'm': video.muted = !video.muted; break;
-          case 'f': controls.toggleFullScreen(); break;
-          case 't': document.getElementById('btnTheater').click(); break;
-          case 'arrowleft': video.currentTime = Math.max(0, video.currentTime - 5); break;
-          case 'arrowright': video.currentTime = Math.min((video.duration||1), video.currentTime + 5); break;
-        }
-      });
+      await player.load(manifestUri);
+      controls.dispatchEvent(new Event('uiupdated'));
 
-      // Buttons
-      $('btnTheater').addEventListener('click', () => {
-        document.documentElement.classList.toggle('theater');
-      });
-      $('btnReset').addEventListener('click', () => {
-        try { localStorage.removeItem('shaka:resume:' + manifestUri); notify('Resume point cleared'); } catch (_) {}
-      });
+      if (startSec > 0) video.currentTime = startSec;
+      if (autoplay){ try { await video.play(); } catch (_) {} }
+    }
 
-      // Error helpers
-      function onErrorEvent(evt) { onError(evt.detail); }
-      function onError(err) {
-        console.error('Shaka error', err);
-        const msg = err && err.code ? `Playback error (code ${err.code}).` : 'Playback error.';
-        notify(msg + ' Check CORS on your HLS URL and try again.');
+    function onError(err){
+      console.error('Shaka error', err);
+      if (err && err.message === 'URL not allowed by whitelist'){
+        notify('⛔ এই URL প্লে করার অনুমতি নেই (whitelist mismatch).');
+      } else {
+        notify('Playback error. সম্ভবত CORS/টোকেন/জিও-লিমিট ইস্যু.', 5000);
       }
-      function notify(message, ms = 3000) {
-        toast.firstElementChild.textContent = message;
-        toast.classList.add('show');
-        clearTimeout(notify._t);
-        notify._t = setTimeout(() => toast.classList.remove('show'), ms);
+    }
+
+    // Shortcuts & buttons
+    window.addEventListener('keydown', (e)=>{
+      if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+      switch(e.key.toLowerCase()){
+        case 'k': video.paused ? video.play() : video.pause(); break;
+        case 'm': video.muted = !video.muted; break;
+        case 'f': ui.getControls().toggleFullScreen(); break;
+        case 't': document.getElementById('btnTheater').click(); break;
+        case 'arrowleft': video.currentTime = Math.max(0, video.currentTime - 5); break;
+        case 'arrowright': video.currentTime = Math.min((video.duration||1), video.currentTime + 5); break;
       }
-    })();
+    });
+
+    $('btnTheater').addEventListener('click', ()=>{ document.documentElement.classList.toggle('theater'); });
+    $('btnReset').addEventListener('click', ()=>{ try { localStorage.clear(); notify('Resume data cleared'); } catch(_){} });
+  })();
   </script>
+
+  <!--
+    🔧 ডিপ্লয় স্টেপস (GitHub Pages):
+    1) এই ফাইলটি repo-তে index.html নামে রাখুন।
+    2) একই repo-তে (ঐচ্ছিক) allowed.json যোগ করুন, যেমন:
+       {
+         "urls": [
+           "https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_664.m3u8"
+         ]
+       }
+    3) তারপর https://<user>.github.io/<repo>/ খুলুন।
+       • চাইলে ?src=... দিবেন, কিন্তু whitelist-এ না থাকলে প্লে করবে না।
+
+    🛡️ সিকিউরিটি নোট:
+    • এই পেজে CSP সেট করা আছে, যাতে শুধু tataplay.slivcdn.com এ সংযোগ যায়।
+      অন্য ডোমেইনে যেতে চাইলে <meta http-equiv="Content-Security-Policy">-তে connect-src/media-src আপডেট করুন।
+    • GitHub Pages স্ট্যাটিক—সিক্রেট লুকানো যায় না। সম্পূর্ণ লকডাউন দরকার হলে সার্ভার-সাইড সাইনেচার/টোকেন ভ্যালিডেশন ব্যবহার করতে হবে।
+
+    ⚠️ CORS/Geo/Token:
+    • যেই HLS দেবেন সেটার সার্ভারে CORS না থাকলে (বা টোকেন/জিও-ব্লক থাকলে) প্লে নাও হতে পারে।
+  -->
 </body>
 </html>
