@@ -3,147 +3,79 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Shaka Player – Advanced (HLS/DASH)</title>
+  <title>My Shaka Player – Fixed HLS</title>
 
   <!-- Shaka UI CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/controls.css">
 
   <style>
     :root {
-      --bg: #0b1020;
-      --card: #111831;
-      --text: #e8eefc;
-      --muted: #9fb3ff;
-      --accent: #5b8cff;
-      --error: #ff6b6b;
+      --bg: #0b1020; --card:#111831; --text:#e8eefc; --muted:#9fb3ff; --accent:#5b8cff;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: radial-gradient(1200px 500px at 50% -30%, #162246 0%, #0b1020 50%, #070b16 100%);
-      color: var(--text);
-      min-height: 100dvh; display: grid; place-items: center;
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      min-height:100dvh; display:grid; place-items:center;
+      background: radial-gradient(1100px 420px at 50% -25%, #162246 0%, #0b1020 55%, #070b16 100%);
+      color:var(--text);
     }
-    .wrap {
-      width: min(1100px, 100%);
-      padding: 16px;
+    .wrap{width:min(1100px,100%); padding:16px}
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px; overflow:hidden;
+      box-shadow:0 8px 30px rgba(0,0,0,.45);
     }
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-      overflow: hidden;
+    .brand{
+      display:flex; align-items:center; gap:10px; padding:12px 16px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      font-weight:700; letter-spacing:.2px;
     }
-    /* Video container (Shaka UI attaches here) */
-    #video-container {
-      position: relative;
-      aspect-ratio: 16/9;
-      background: #000;
+    #video-container{
+      position:relative; aspect-ratio:16/9; background:#000;
     }
-    video { width: 100%; height: 100%; display: block; }
-
-    /* Loader / Source chooser */
-    #loader {
-      padding: 16px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      background: linear-gradient(180deg, rgba(20,30,60,0.65), rgba(12,18,36,0.6));
+    video{width:100%; height:100%; display:block}
+    #unmute{
+      position:absolute; right:12px; bottom:12px; z-index:5; display:none;
+      background:rgba(0,0,0,.55); color:#fff; padding:8px 12px; border-radius:12px;
+      border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(6px);
+      font-size:13px; cursor:pointer; align-items:center; gap:8px;
     }
-    .row {
-      display: grid; grid-template-columns: 1fr auto auto; gap: 8px;
-      align-items: center;
+    #toast{
+      position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+      background:#192136; color:var(--text); border:1px solid rgba(255,255,255,.14);
+      padding:10px 14px; border-radius:10px; font-size:14px;
+      box-shadow:0 10px 22px rgba(0,0,0,.45); max-width:min(90vw,680px);
     }
-    input[type="url"] {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.15);
-      background: var(--card);
-      color: var(--text);
-      outline: none;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    .hidden{display:none!important}
+    .note{
+      padding:10px 16px; font-size:12.5px; color:#c7d3ffb3;
+      border-top:1px solid rgba(255,255,255,.06);
+      background:linear-gradient(180deg, rgba(20,30,60,.65), rgba(12,18,36,.6));
     }
-    button {
-      padding: 12px 16px;
-      border: 0; border-radius: 10px;
-      background: linear-gradient(180deg, #6f94ff, #4d79ff);
-      color: white; font-weight: 600; cursor: pointer;
-      transition: transform .08s ease, filter .08s ease;
-    }
-    button.secondary {
-      background: linear-gradient(180deg, #2a355c, #222b4a);
-      color: var(--muted);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-    button:active { transform: translateY(1px); filter: brightness(.96); }
-    .hint {
-      margin-top: 8px; font-size: 13px; color: #c7d3ffb3;
-    }
-    .hidden { display: none !important; }
-
-    /* Toast/Error */
-    #toast {
-      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
-      background: #192136; color: var(--text);
-      border: 1px solid rgba(255,255,255,0.14);
-      padding: 10px 14px; border-radius: 10px; font-size: 14px;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.45);
-      max-width: min(90vw, 680px);
-    }
-    #toast.err { border-color: #ff6b6b66; background: #2a1520; }
-
-    /* Tap to unmute overlay */
-    #unmute {
-      position: absolute; right: 12px; bottom: 12px; z-index: 5;
-      background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
-      color: white; border-radius: 12px; border: 1px solid rgba(255,255,255,0.16);
-      padding: 8px 12px; font-size: 13px; display: none; align-items: center; gap: 8px;
-      cursor: pointer;
-    }
-    #unmute svg { width: 16px; height: 16px; }
-    .brand {
-      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      font-weight: 700; letter-spacing: .2px;
-    }
-    .brand small { opacity: .7; font-weight: 500; }
-    a.help {
-      color: var(--muted); text-decoration: underline dotted;
-    }
+    code{background:#0f1836; padding:.1rem .35rem; border-radius:6px; border:1px solid rgba(255,255,255,.08)}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <div class="brand">
-        🎬 Shaka Player – Advanced <small>(HLS & DASH)</small>
-      </div>
+      <div class="brand">🎬 My Shaka Player <small style="opacity:.7;font-weight:500">— Fixed HLS</small></div>
 
-      <!-- Shaka UI attaches to this container -->
       <div id="video-container" class="shaka-player-container" data-shaka-player-container>
         <video id="video" class="shaka-video" playsinline></video>
         <button id="unmute" title="Tap to unmute">
-          <!-- tiny icon -->
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a3.5 3.5 0 00-1.87-3.11v6.22A3.5 3.5 0 0016.5 12zm0-7a10.5 10.5 0 010 14m-2.62-12.62a7.5 7.5 0 010 11.24" /></svg>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a3.5 3.5 0 00-1.87-3.11v6.22A3.5 3.5 0 0016.5 12zm0-7a10.5 10.5 0 010 14m-2.62-12.62a7.5 7.5 0 010 11.24"/>
+          </svg>
           Tap to unmute
         </button>
       </div>
 
-      <!-- Source chooser / loader (no autoplay without ?src=) -->
-      <div id="loader">
-        <div class="row">
-          <input id="srcInput" type="url" placeholder="Paste HLS (.m3u8) or DASH (.mpd) URL…"
-                 inputmode="url" autocomplete="off" spellcheck="false">
-          <button id="demoBtn" class="secondary" type="button">Use TEN3HD</button>
-          <button id="playBtn" type="button">Play</button>
-        </div>
-        <div class="hint">
-          Use query param: <code>?src=&lt;ENCODED_URL&gt;</code> — e.g.
-          <code>?src=https%3A%2F%2Ftataplay.slivcdn.com%2Fhls%2Flive%2F2020591%2FTEN3HD%2Fmaster_664.m3u8</code>
-          <br>
-          Having trouble? Check CORS on your stream origin (no bypass here) and that the URL is accessible.
-        </div>
+      <div class="note">
+        <b>Fixed URL:</b>
+        <code id="fixedUrlCode">https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_664.m3u8</code>
+        &nbsp;— বদলাতে চাইলে স্ক্রিপ্টের <code>STREAM_URL</code> কনস্ট্যান্টটি এডিট করুন।
       </div>
     </div>
   </div>
@@ -153,186 +85,116 @@
   <!-- Shaka Player (UI build) -->
   <script src="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/shaka-player.ui.min.js" defer></script>
   <script>
-  // Wait until Shaka script is loaded
+  // ==== EDIT JUST THIS LINE TO CHANGE YOUR FIXED STREAM ====
+  const STREAM_URL = 'https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_664.m3u8';
+  // ========================================================
+
   window.addEventListener('load', async () => {
-    if (!window.shaka) {
-      showToast('Shaka Player load failed. Check your internet/CDN.', true);
-      return;
-    }
+    document.getElementById('fixedUrlCode').textContent = STREAM_URL;
+
+    if (!window.shaka) { return showToast('Shaka Player load failed. Check CDN.', true); }
 
     shaka.polyfill.installAll();
     if (!shaka.Player.isBrowserSupported()) {
-      showToast('এই ব্রাউজারে মিডিয়া প্লেব্যাক সাপোর্টেড না। অন্য ব্রাউজার চেষ্টা করুন।', true);
-      return;
+      return showToast('এই ব্রাউজারে মিডিয়া সাপোর্টেড না। অন্য ব্রাউজার ব্যবহার করুন।', true);
     }
 
     const video = document.getElementById('video');
     const container = document.getElementById('video-container');
     const unmute = document.getElementById('unmute');
 
-    // Shaka UI overlay + controls
+    // Create Shaka UI overlay
     const ui = new shaka.ui.Overlay(null, container, video);
     const controls = ui.getControls();
     const player = controls.getPlayer();
 
-    // Keep handy for debugging in console:
+    // Expose for debugging
     window.player = player; window.ui = ui; window.video = video;
 
-    // UI config
+    // UI controls config
     ui.configure({
       addSeekBar: true,
       addBigPlayButton: true,
       controlPanelElements: [
-        'play_pause', 'time_and_duration', 'spacer', 'mute', 'volume',
-        'captions', 'quality', 'playback_rate', 'picture_in_picture', 'fullscreen'
+        'play_pause','time_and_duration','spacer','mute','volume',
+        'captions','quality','playback_rate','picture_in_picture','fullscreen'
       ],
-      overflowMenuButtons: ['captions', 'audio', 'quality', 'playback_rate'],
+      overflowMenuButtons: ['captions','audio','quality','playback_rate'],
     });
 
-    // Player config: tuned for live/LL-HLS friendly behavior
+    // Player streaming config
     player.configure({
       streaming: {
         lowLatencyMode: true,
-        rebufferingGoal: 1.5,   // seconds
-        bufferingGoal: 10,      // seconds
+        rebufferingGoal: 1.5,
+        bufferingGoal: 10,
         bufferBehind: 30,
         jumpLargeGaps: true,
         smallGapLimit: 0.5,
         stallEnabled: true,
         useNativeHlsOnSafari: true
       },
-      abr: {
-        enabled: true,
-        switchInterval: 8,
-        defaultBandwidthEstimate: 8_000_000, // 8 Mbps initial guess
-      },
-      manifest: {
-        retryParameters: {
-          maxAttempts: 8, baseDelay: 500, backoffFactor: 2, fuzzFactor: 0.5, timeout: 30000
-        }
-      },
-      drm: { servers: {} } // no DRM by default; this page doesn't bypass DRM
+      abr: { enabled: true, switchInterval: 8, defaultBandwidthEstimate: 8_000_000 },
+      manifest: { retryParameters: { maxAttempts: 8, baseDelay: 500, backoffFactor: 2, fuzzFactor: .5, timeout: 30000 } },
+      drm: { servers: {} } // no DRM here (no bypass)
     });
 
-    // Friendly error messages + gentle retry
     player.addEventListener('error', (ev) => onShakaError(ev.detail));
     video.addEventListener('error', () => {
       const err = video.error;
-      if (!err) return;
-      onFriendlyError(`HTML5 video error (code ${err.code}). Network or codec issue?`);
+      if (err) onFriendlyError(`HTML5 video error (code ${err.code}).`);
     });
 
     function onShakaError(error) {
       console.error('Shaka error:', error);
       const code = error && (error.code || error);
       let msg = 'Playback error.';
-      if (code === shaka.util.Error.Code.BAD_HTTP_STATUS) msg = 'HTTP error: Stream URL blocked or not reachable.';
-      else if (code === shaka.util.Error.Code.REQUEST_FILTER_ERROR) msg = 'Request blocked. Check headers/CORS.';
+      if (code === shaka.util.Error.Code.BAD_HTTP_STATUS) msg = 'HTTP error: URL blocked/not reachable.';
       else if (code === shaka.util.Error.Code.MANIFEST_UNKNOWN) msg = 'Invalid/unsupported manifest.';
       else if (code === shaka.util.Error.Code.HLS_SEGMENT_PARSING_ERROR) msg = 'HLS segment parsing error.';
       else if (code === shaka.util.Error.Code.NETWORK_HTTP_ERROR) msg = 'Network HTTP error.';
       onFriendlyError(msg);
-
-      // Try a soft retry for transient network issues
-      try { player.retryStreaming(); } catch (e) {}
+      try { player.retryStreaming(); } catch {}
     }
-
-    function onFriendlyError(message) {
-      showToast(message + ' (No DRM/CORS bypass)', true);
-    }
+    function onFriendlyError(message){ showToast(message + ' (No DRM/CORS bypass)', true); }
 
     // Tap to unmute helper
-    function maybeShowUnmute() {
-      if (video.muted || video.volume === 0) {
-        unmute.style.display = 'inline-flex';
-      } else {
-        unmute.style.display = 'none';
-      }
+    function maybeShowUnmute(){
+      if (video.muted || video.volume === 0) unmute.style.display = 'inline-flex';
+      else unmute.style.display = 'none';
     }
-    unmute.addEventListener('click', () => {
-      video.muted = false; video.volume = Math.max(video.volume, 0.6);
-      maybeShowUnmute();
-    });
+    unmute.addEventListener('click', () => { video.muted = false; video.volume = Math.max(video.volume, .6); maybeShowUnmute(); });
     video.addEventListener('volumechange', maybeShowUnmute);
 
-    // Load by URL param (?src=...)
-    const params = new URLSearchParams(location.search);
-    const srcParam = params.get('src');
-    const input = document.getElementById('srcInput');
-    const playBtn = document.getElementById('playBtn');
-    const demoBtn = document.getElementById('demoBtn');
-    const loader = document.getElementById('loader');
+    // Persist basic prefs
+    const VOL_KEY='sp_vol', MUTE_KEY='sp_muted', RATE_KEY='sp_rate';
+    try{
+      const v=+localStorage.getItem(VOL_KEY); if(!Number.isNaN(v)) video.volume=Math.min(1,Math.max(0,v));
+      video.muted = localStorage.getItem(MUTE_KEY)==='1';
+      const r=+localStorage.getItem(RATE_KEY); if(r && r>=.5 && r<=2) video.playbackRate=r;
+      video.addEventListener('volumechange',()=>{localStorage.setItem(VOL_KEY,String(video.volume)); localStorage.setItem(MUTE_KEY, video.muted?'1':'0');});
+      video.addEventListener('ratechange',()=>localStorage.setItem(RATE_KEY,String(video.playbackRate)));
+    }catch{}
 
-    if (srcParam) input.value = decodeURIComponent(srcParam);
-
-    demoBtn.addEventListener('click', () => {
-      input.value = 'https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_664.m3u8';
-      showToast('Sample URL set. Press Play.', false);
-    });
-
-    playBtn.addEventListener('click', () => {
-      const url = (input.value || '').trim();
-      startPlayback(url);
-    });
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); startPlayback((input.value || '').trim()); }
-    });
-
-    // If src present, DO NOT autoplay; require explicit Play click.
-    async function startPlayback(url) {
-      if (!url) { showToast('HLS (.m3u8) বা DASH (.mpd) লিংক পেস্ট করুন।', true); return; }
-      try {
-        await player.load(url);
-        // attempt muted autoplay; some browsers require gesture—so we show Unmute if needed
-        video.muted = true;
-        await video.play().catch(() => {}); // ignore gesture block
-        maybeShowUnmute();
-
-        // Update URL bar
-        history.replaceState(null, '', `?src=${encodeURIComponent(url)}`);
-
-        // Hide source chooser after first successful load
-        loader.classList.add('hidden');
-        showToast('Playing…', false);
-      } catch (err) {
-        onShakaError(err);
-      }
-    }
-
-    // If you want *auto* start when param exists, uncomment next 2 lines.
-    // if (srcParam) startPlayback(decodeURIComponent(srcParam));
-
-    // Small helper: Persist last volume & rate
-    const VOL_KEY = 'sp_vol', MUTE_KEY = 'sp_muted', RATE_KEY = 'sp_rate';
-    try {
-      const v = +localStorage.getItem(VOL_KEY); if (!Number.isNaN(v)) video.volume = Math.min(1, Math.max(0, v));
-      video.muted = localStorage.getItem(MUTE_KEY) === '1' ? true : false;
-      const r = +localStorage.getItem(RATE_KEY); if (r && r >= .5 && r <= 2) video.playbackRate = r;
-      video.addEventListener('volumechange', () => {
-        localStorage.setItem(VOL_KEY, String(video.volume));
-        localStorage.setItem(MUTE_KEY, video.muted ? '1' : '0');
-      });
-      video.addEventListener('ratechange', () => localStorage.setItem(RATE_KEY, String(video.playbackRate)));
-    } catch {}
+    // ---- Auto-start fixed HLS ----
+    try{
+      await player.load(STREAM_URL);
+      // Attempt muted autoplay; if blocked, user can click big play button.
+      video.muted = true;
+      await video.play().catch(()=>{ /* gesture required, UI big play is visible */ });
+      maybeShowUnmute();
+      showToast('Playing…', false);
+    }catch(err){ onShakaError(err); }
 
     // Toast utility
     let toastTimer;
-    function showToast(text, isErr) {
-      const t = document.getElementById('toast');
-      t.textContent = text;
-      t.classList.toggle('err', !!isErr);
-      t.classList.remove('hidden');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.add('hidden'), 4200);
+    function showToast(text, isErr){
+      const t=document.getElementById('toast');
+      t.textContent=text; t.classList.toggle('err', !!isErr);
+      t.classList.remove('hidden'); clearTimeout(toastTimer);
+      toastTimer=setTimeout(()=>t.classList.add('hidden'), 4200);
     }
   });
   </script>
-
-  <!-- Usage:
-       1) Host this file on GitHub Pages.
-       2) Open with: https://<username>.github.io/<repo>/?src=<ENCODED_URL>
-       3) Or paste your URL and press Play. No autoplay without explicit action.
-       Note: This player does NOT bypass DRM/CORS/geo restrictions. Ensure your stream allows web playback.
-  -->
 </body>
 </html>
