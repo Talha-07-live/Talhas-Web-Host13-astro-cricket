@@ -91,19 +91,19 @@
 
             // Listen for messages from the iframe
             window.addEventListener('message', function (event) {
-                if (event.origin !== 'https://enz.gdplayertv.to') return; // Change this to the actual origin if needed
+                if (event.origin !== 'https://en.gdplayer.tv') return; // Change this to the actual origin if needed
                 if (event.data && event.data.type === 'prevent-open') {
                     alert('Blocked a new tab from opening.');
                 }
             });
 
             // Load the iframe
-            iframe.src = 'https://chlive.pages.dev/p3/?id=Willow';
+            iframe.src = 'https://liveon.rajtammi111212.workers.dev/?ch=willow';
 
             // Hide the footer text after 10 seconds
             setTimeout(function () {
                 document.querySelector('.footer-text').style.display = 'none';
-            }, 25000); // 25 seconds delay to hide the text
+            }, 26000); // 25 seconds delay to hide the text
         }
 
         function openTelegram() {
@@ -115,7 +115,7 @@
 <body>
 
     <div class="footer-text">
-        <span>Welcome to Talha's Stream, You're Watching Live Sports on Talha's Collection</span>
+        <span>Welcome to Talha's Stream, You're Watching Live Sports on Talha's Collection (This Livestream source from third party website. "Talha's collection" doesn't benefit from any of this ads)</span>
     </div>
 
     <!-- Telegram Button -->
