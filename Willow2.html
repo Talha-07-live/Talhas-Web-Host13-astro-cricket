@@ -91,14 +91,14 @@
 
             // Listen for messages from the iframe
             window.addEventListener('message', function (event) {
-                if (event.origin !== 'https://en.gdplayer.tv') return; // Change this to the actual origin if needed
+                if (event.origin !== 'https://topembed.pw/channel/WillowXtra2[USA]') return; // Change this to the actual origin if needed
                 if (event.data && event.data.type === 'prevent-open') {
                     alert('Blocked a new tab from opening.');
                 }
             });
 
             // Load the iframe
-            iframe.src = 'https://liveon.rajtammi111212.workers.dev/?ch=willow2';
+            iframe.src = 'https://topembed.pw/channel/WillowXtra2[USA]';
 
             // Hide the footer text after 10 seconds
             setTimeout(function () {
