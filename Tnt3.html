@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Cricket Stream</title>
+  <style>
+    body { margin:0; padding:0; background:#000; position:relative; }
+
+    /* Top marquee */
+    .footer-text {
+      position: absolute; top:0; left:0; right:0;
+      text-align:center; color:red; background:transparent;
+      font-size:85%; font-weight:bold; white-space:nowrap; overflow:hidden; z-index:1000;
+    }
+    .footer-text span { display:inline-block; padding-left:95%; animation: slide 25s linear infinite; }
+    @keyframes slide { 0% { transform: translateX(8%);} 100% { transform: translateX(-100%);} }
+
+    /* Telegram button */
+    .telegram-button { position:absolute; top:1px; left:1px; z-index:1001; cursor:pointer; }
+    .telegram-button img { width:60px; height:60px; border-radius:20%; box-shadow:0 4px 10px rgba(0,0,0,.1); }
+
+    /* Player responsive wrapper (same as worker) */
+    .page { min-height: 100svh; display:flex; justify-content:center; align-items:center; }
+    .player-wrap {
+      width: 100%; max-width: 1200px; aspect-ratio: 16/9; background:#000; position:relative; overflow:hidden;
+    }
+    #stream-iframe {
+      position:absolute; inset:0; width:100%; height:100%; border:0;
+    }
+
+    /* Overlay (parent-side, optional as extra safety) */
+    #thumbOverlay {
+      position:absolute; inset:0; z-index:999;
+      background:#000 url('https://s10.gifyu.com/images/SrMU9.png') center/cover no-repeat;
+      display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px;
+      transition: opacity .6s ease;
+      color:#fff; font: 700 20px/1.2 system-ui, sans-serif;
+    }
+    .spinner {
+      width:56px; height:56px; border-radius:50%;
+      border:10px solid #ffffff80; border-top-color:#ff5722; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+
+  <script>
+    window.onload = function () {
+      // Allowed domains check
+      const allowedDomains = [
+        'https://talha-07-live.github.io/Talhas-Web-Host13-astro-cricket/',
+        'https://talhas.collection.page.gd/',
+        'https://bhaichurikorbenna.servert.rf.gd/',
+        'https://wizardfcofficial.rf.gd/'
+      ];
+      const ref = document.referrer || '';
+      if (!allowedDomains.some(d => ref.startsWith(d))) {
+        document.body.innerHTML = '<h1 style="color:#f00;text-align:center;margin-top:20vh">চুরি করা মহাপাপ (By Order Of Talha)</h1>';
+        return;
+      }
+
+      const iframe = document.getElementById('stream-iframe');
+      const overlay = document.getElementById('thumbOverlay');
+
+      // Load your worker embed (which itself injects play-detect into the proxied page)
+      iframe.src = 'https://phls.rajtammi111212.workers.dev/embed?ch=tnt3';
+
+      // Hide the marquee after 26s (as you had)
+      setTimeout(() => {
+        const ft = document.querySelector('.footer-text');
+        if (ft) ft.style.display = 'none';
+      }, 26000);
+
+      // Listen for video-start from child (from worker /embed -> /proxy injected JS)
+      window.addEventListener('message', (event) => {
+        // Accept from your worker origin
+        // if (event.origin !== 'https://phls.rajtammi111212.workers.dev/embed?ch=tnt1') return; // optional strict check
+        if (event.data && (event.data.type === 'video-start' || event.data === 'video-start')) {
+          overlay.style.opacity = '0';
+          setTimeout(()=> overlay.style.display = 'none', 600);
+        }
+      });
+
+      // Fallback hide after 12s if message somehow missed
+      setTimeout(() => {
+        if (overlay.style.display !== 'none') {
+          overlay.style.opacity = '0';
+          setTimeout(()=> overlay.style.display = 'none', 600);
+        }
+      }, 10000);
+    };
+
+    function openTelegram() { window.open('https://t.me/talhasmovie_request_bot', '_blank'); }
+  </script>
+</head>
+<body>
+
+  <div class="footer-text">
+    <span>Welcome to Talha's Stream, You're Watching Live Sports on Talha's Collection.</span>
+  </div>
+
+  <div class="telegram-button" onclick="openTelegram()">
+    <img src="https://s1.gifyu.com/images/SAe3R.png" alt="Telegram">
+  </div>
+
+  <div class="page">
+    <div class="player-wrap">
+      <!-- Parent-side safety overlay (optional; worker side overlay already there) -->
+      <div id="thumbOverlay">
+        <div class="spinner"></div>
+        <div>Please Wait Buffering...</div>
+      </div>
+      <iframe id="stream-iframe"
+        sandbox="allow-same-origin allow-scripts"
+        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+</body>
+</html>
